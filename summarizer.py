@@ -13,30 +13,23 @@ def summarize_text(
 ) -> str:
     
      try:
-         #- Loads the summarization pipeline with the specified model
-         summarizer = pipeline("summarization", model=model_name)
+         #- Loads the text-generation pipeline with the specified model
+         summarizer = pipeline("text-generation", model=model_name)
          #Runs the summarization with length constraints.
-         #- do_sample=False ensures deterministic output.
          summary = summarizer(
-              text,
+              f"Summarize this text: {text}",
               max_length = max_length,
               min_length = min_length,
               do_sample = False,
               truncation=True
          )
          #- Returns the summary text from the first result.
-         return summary[0]['summary_text']
+         return summary[0]['generated_text'].replace("Summarize this text: ", "")
      except Exception as e:
-         # Fallback to a different approach if pipeline fails
+         # Fallback to text-classification for sentiment analysis if needed
          try:
-             summarizer = pipeline("text2text-generation", model=model_name)
-             summary = summarizer(
-                 f"summarize: {text}",
-                 max_length=max_length,
-                 min_length=min_length,
-                 do_sample=False,
-                 truncation=True
-             )
-             return summary[0]['generated_text']
+             summarizer = pipeline("text-classification", model=model_name)
+             result = summarizer(text)
+             return f"Classification result: {result[0]['label']} - {result[0]['score']:.2f}"
          except Exception as e2:
-             raise Exception(f"Both summarization and text2text-generation pipelines failed. Original error: {e}, Fallback error: {e2}")
+             raise Exception(f"Both text-generation and text-classification pipelines failed. Original error: {e}, Fallback error: {e2}")
