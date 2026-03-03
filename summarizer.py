@@ -11,7 +11,7 @@ def summarize_text(
 ) -> str:
     
      #- Loads the summarization pipeline with the specified model
-     summarizer = pipeline("summarization",model=model_name)
+     summarizer = pipeline(task="summarization",model=model_name)
      #Runs the summarization with length constraints.
      #- do_sample=False ensures deterministic output.
      summary = summarizer(
